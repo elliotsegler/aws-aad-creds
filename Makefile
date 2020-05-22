@@ -24,13 +24,13 @@ pylint:
 	$(PE) pylint --rcfile .pylintrc $(MODULE)
 
 test:
-	$(PE) py.test -v $(TESTS)
+	$(PE) pytest -v $(TESTS)
 
 coverage:
-	$(PE) py.test --cov $(MODULE) --cov-report term-missing $(TESTS) --cov-report=xml
+	$(PE) pytest --cov $(MODULE) --cov-report term-missing $(TESTS) --cov-report=xml
 
 htmlcov:
-	$(PE) py.test --cov $(MODULE) --cov-report html $(TESTS)
+	$(PE) pytest --cov $(MODULE) --cov-report html $(TESTS)
 	rm -rf /tmp/htmlcov && mv htmlcov /tmp/
 	open /tmp/htmlcov/index.html
 

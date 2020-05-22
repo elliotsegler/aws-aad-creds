@@ -4,6 +4,14 @@ MODULE=aws_aad_creds/
 PE?=pipenv run
 PY?=$(PE) python
 
+clean:
+	-rm -rf build/*
+	-rm -rf tools/sphinx
+	-rm -rf tools/pygments
+	-rm -rf tools/jinja2
+	-rm -rf tools/docutils
+	-rm -f coverage.xml
+
 check:
 	###### FLAKE8 #####
 	# No unused imports, no undefined vars

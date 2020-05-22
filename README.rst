@@ -2,7 +2,7 @@
 AWS AzureAD Credential Provider
 ===============================
 
-.. image:: https://github.com/elliotsegler/aws-aad-creds/workflows/build/badge.svg
+.. image:: https://github.com/elliotsegler/aws-aad-creds/workflows/Build/badge.svg?branch=master
    :target: https://github.com/elliotsegler/aws-aad-creds/actions
 
 This is a process-based credential providers to be used with the AWS CLI

@@ -37,7 +37,7 @@ In addition to python being installed, you'll need to:
 - Create two new AzureAD app registrations
 
   - One for this CLI application to use
-  
+
   - One for a middleware component (which can be this script) to switch provide
     service chaining to call the AWS Enterprise App
 

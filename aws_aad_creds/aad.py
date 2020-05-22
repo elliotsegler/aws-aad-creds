@@ -1,11 +1,9 @@
 import base64
-import getpass
 import logging
 import xml.etree.cElementTree as ET
 from hashlib import sha1
 from copy import deepcopy
 
-import six
 import requests
 import botocore
 import adal
@@ -13,20 +11,17 @@ import uuid
 import datetime
 
 from botocore.client import Config
-from botocore.compat import urlsplit
-from botocore.compat import urljoin
 from botocore.compat import json
 from botocore.credentials import CachedCredentialFetcher
 import botocore.session
 
 import concurrent
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 
 import aws_aad_creds
-from .compat import escape
 
 
-_DEFAULT_EXPIRY_WINDOW = 60*15
+_DEFAULT_EXPIRY_WINDOW = 60 * 15
 
 
 class SAMLError(Exception):
@@ -49,7 +44,8 @@ class DeviceCodeAuthenticator(object):
         self._authority_host_url = config.get('authority_host_url')
         self._tenant = config.get('aad_tenant')
         self._middleware_client_id = config.get('middleware_client_id', None)
-        self._middleware_client_secret = config.get('middleware_client_secret', None)
+        self._middleware_client_secret = config.get('middleware_client_secret',
+                                                    None)
         self._middleware_url = config.get('middleware_url', None)
         self._upstream_resource = "https://signin.aws.amazon.com/saml"
 
@@ -61,7 +57,7 @@ class DeviceCodeAuthenticator(object):
     def _get_device_code_session(self):
         """ Connect to AzureAD and start a Device Code flow """
         device_code = self._adal_context.acquire_user_code(
-                        self._middleware_client_id, self._cli_client_id)
+                            self._middleware_client_id, self._cli_client_id)  # noqa: E126,E501
         return device_code
 
     def _block_and_wait_for_signin(self, device_code):
@@ -83,7 +79,7 @@ class DeviceCodeAuthenticator(object):
         if len(result.done) == 1:
             token = result.done.pop().result()
         else:
-            self._adal_context.cancel_request_to_get_token_with_device_code(device_code)
+            self._adal_context.cancel_request_to_get_token_with_device_code(device_code)  # noqa: E501
             raise Exception("Device token flow has timed out")
         return token
 
@@ -95,7 +91,7 @@ class DeviceCodeAuthenticator(object):
             # I'm the middleware, do this locally
             saml_token = self._process_middleware_locally(token, resource)
         else:
-            raise NotImplemented
+            raise NotImplementedError
 
         return saml_token
 
@@ -135,7 +131,6 @@ class DeviceCodeAuthenticator(object):
         if device_code is not None:
             self._device_code = device_code
 
-        #print("Logging in user using device token...")
         print(device_code['message'])
 
         # Step 2 - wait for the user to sign in, and retireve the token
@@ -145,8 +140,8 @@ class DeviceCodeAuthenticator(object):
         #          and exchange it for a SAML token against the AWS App
         saml_token = self._send_oauth_token_to_middleware(oauth_token)
         saml_response = self._transform_assertion_to_saml_response(saml_token)
-
-        return base64.urlsafe_b64encode(saml_response.encode('utf-8')).decode('utf-8')
+        saml_response_enc = base64.urlsafe_b64encode(saml_response.encode('utf-8'))  # noqa: E501
+        return saml_response_enc.decode('utf-8')
 
     def _transform_assertion_to_saml_response(self, saml_token):
 
@@ -157,15 +152,15 @@ class DeviceCodeAuthenticator(object):
             <samlp:Status><samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/></samlp:Status>
             {saml_assertion}
         </samlp:Response>
-        """
+        """  # noqa: E501
         response_id = uuid.uuid4()
-        authn_instant = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        authn_instant = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # noqa: E501
         issuer = self._parse_issuer(saml_token)
 
         saml_response = saml_response_tpl.format(response_id=response_id,
-            authn_instant=authn_instant, issuer=issuer,
-            saml_assertion=saml_token
-        )
+                                                 authn_instant=authn_instant,
+                                                 issuer=issuer,
+                                                 saml_assertion=saml_token)
 
         return saml_response
 
@@ -177,6 +172,10 @@ class DeviceCodeAuthenticator(object):
 
 
 class DeviceCodeCredentialsFetcher(CachedCredentialFetcher):
+
+    _PROVIDERS = {
+        'device-code': DeviceCodeAuthenticator
+    }
 
     def __init__(self, client_creator, provider_name, config,
                  role_selector=_role_selector, cache=None,
@@ -197,7 +196,7 @@ class DeviceCodeCredentialsFetcher(CachedCredentialFetcher):
 
         self._assume_role_kwargs = None
 
-        self._authenticator = DeviceCodeAuthenticator(config)
+        self._authenticator = self._PROVIDERS.get(provider_name)(config)
 
     @property
     def _cache_key(self):
@@ -279,7 +278,8 @@ class DeviceCodeCredentialsFetcher(CachedCredentialFetcher):
         attribute = '{urn:oasis:names:tc:SAML:2.0:assertion}Attribute'
         attr_value = '{urn:oasis:names:tc:SAML:2.0:assertion}AttributeValue'
         awsroles = []
-        root = ET.fromstring(base64.urlsafe_b64decode(assertion).decode('utf-8'))
+        root = ET.fromstring(
+            base64.urlsafe_b64decode(assertion).decode('utf-8'))
         for attr in root.iter(attribute):
             if attr.get('Name') == \
                     'https://aws.amazon.com/SAML/Attributes/Role':

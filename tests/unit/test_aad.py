@@ -1,10 +1,6 @@
-import base64
-import json
-from datetime import datetime, timedelta
-from copy import deepcopy
 
 import mock
-from dateutil.tz import tzlocal
+
 import pytest
 import requests
 
@@ -22,6 +18,7 @@ def mock_requests_session():
 def aad_auth(prompter, mock_requests_session):
     return DeviceCodeAuthenticator(prompter, mock_requests_session)
 
+
 @pytest.fixture
 def generic_config():
     return {
@@ -33,6 +30,7 @@ def generic_config():
             'middleware_url': None,
             'authority_host_url': 'https://clearly.notmicrosoft.mockdomain'
         }
+
 
 @pytest.fixture
 def middleware_url_config():
@@ -46,9 +44,32 @@ def middleware_url_config():
             'authority_host_url': 'https://clearly.notmicrosoft.mockdomain'
         }
 
+
+@pytest.fixture
+def aad_fetcher(generic_config, client_creator, prompter, mock_authenticator,
+                cache):
+    authenticator_cls = mock.Mock(return_value=mock_authenticator)
+    provider_name = 'myprovider'
+
+    class MockDeviceCodeCredentialsFetcher(DeviceCodeCredentialsFetcher):
+        _PROVIDERS = {
+            provider_name: authenticator_cls
+        }
+
+    fetcher = MockDeviceCodeCredentialsFetcher(
+        client_creator=client_creator,
+        provider_name=provider_name,
+        saml_config=generic_config,
+        password_prompter=prompter,
+        cache=cache
+    )
+    return fetcher
+
+
 @pytest.fixture
 def mock_authenticator():
     return mock.Mock(spec=DeviceCodeAuthenticator)
+
 
 @pytest.fixture
 def cache():
@@ -65,5 +86,5 @@ class TestDeviceCodeAuthenticator(object):
 class TestDeviceCodeCredentialsFetcher(object):
 
     @pytest.mark.xfail(reason="TODO: Cover with tests")
-    def test_nothing_implemented_yet(self):
-        assert True == False
+    def test_nothing_implemented_yet(self, fetcher):
+        assert fetcher is None

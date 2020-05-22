@@ -14,7 +14,7 @@ from .cache import JSONFileCache
 
 
 def run(argv=None, prompter=getpass.getpass, client_creator=None,
-         cache_dir=None):
+        cache_dir=None):
     parser = argparse.ArgumentParser()
     middleware_group = parser.add_mutually_exclusive_group(required=True)
     parser.add_argument(
@@ -24,40 +24,47 @@ def run(argv=None, prompter=getpass.getpass, client_creator=None,
         )
     )
     parser.add_argument(
-         '--cli-client-id', required=True, help=(
+        '--cli-client-id', required=True, help=(
             'The Client ID of this AzureAD CLI Application'
         )
     )
     parser.add_argument(
-         '--aad-tenant', required=True, help=(
-            'The AzureAD Tenant, usually something.onmicrosoft.com or the TenantID'
+        '--aad-tenant', required=True, help=(
+            'The AzureAD Tenant, usually something.onmicrosoft.com or the'
+            'TenantID'
         )
     )
     parser.add_argument(
-         '--aad-auth-host', default="https://login.microsoftonline.com", required=False, help=(
-            'The AzureAD login endpoint, defaults to https://login.microsoftonline.com'
+        '--aad-auth-host', default="https://login.microsoftonline.com",
+        required=False, help=(
+            'The AzureAD login endpoint, defaults to '
+            'https://login.microsoftonline.com'
         )
     )
     middleware_group.add_argument(
-         '--middleware-url', required=False, help=(
-            'The URL of a service acting as the middleware (optional, instead of client id and secret)'
-            'WARNING: NOT YET IMPLEMENTED'
+        '--middleware-url', required=False, help=(
+            'The URL of a service acting as the middleware (optional, '
+            'instead of client id and secret).'
+            ' *** WARNING: NOT YET IMPLEMENTED'
         )
     )
     middleware_group.add_argument(
-         '--middleware-client-id', required=False, help=(
-            'The Client ID of the AzureAD app used to call the AWS App on the users behalf'
+        '--middleware-client-id', required=False, help=(
+            'The Client ID of the AzureAD app used to call the AWS App on the '
+            'users behalf'
         )
     )
     parser.add_argument(
-         '--middleware-client-secret', required=False, help=(
-            'The Client Secret of the AzureAD app used to call the AWS App on the users behalf, (required with middleware-client-id)'
+        '--middleware-client-secret', required=False, help=(
+            'The Client Secret of the AzureAD app used to call the AWS App on '
+            'the users behalf, (required with middleware-client-id)'
         )
     )
     parser.add_argument(
         '--no-cache', action='store_false', default=True, dest='cache',
         help=(
-            'Disables the storing and retrieving of credentials from the local file cache.'
+            'Disables the storing and retrieving of credentials from the '
+            'local file cache.'
         )
     )
     parser.add_argument(
@@ -82,7 +89,8 @@ def run(argv=None, prompter=getpass.getpass, client_creator=None,
         cache = JSONFileCache(cache_dir)
 
     if args.middleware_url is not None:
-        print("ERROR: You need to specify a client id and secret", file=sys.stderr)
+        print("ERROR: You need to specify a client id and secret",
+              file=sys.stderr)
         parser.print_help()
         exit(1)
 

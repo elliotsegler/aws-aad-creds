@@ -13,14 +13,10 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
-
-            - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v2
+            - uses: actions/setup-python@v2
               with:
                 python-version: ${{ matrix.python-version }}
-
-            - name: Set up pipenv
-              uses: dschep/install-pipenv-action@v1
+            - uses: dschep/install-pipenv-action@v1
 
             - name: Run tests
               run: |

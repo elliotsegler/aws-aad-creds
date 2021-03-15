@@ -31,7 +31,7 @@ setup(
     name='aws_aad_creds',
     version=find_version('aws_aad_creds', '__init__.py'),
     description='AWS Process Credential Provider for AzureAD.',
-    long_description=read('README.md'),
+    long_description=read('README.rst'),
     author='Elliot Segler',
     url='https://github.com/elliotsegler/aws-aad-creds',
     packages=find_packages(exclude=['tests']),

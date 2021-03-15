@@ -9,6 +9,7 @@ pytest-cov = "*"
 flake8 = "*"
 coverage = "*"
 mock = "*"
+twine = "*"
 
 [packages]
 adal = "~=1.2.2"

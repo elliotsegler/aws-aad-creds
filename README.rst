@@ -225,3 +225,23 @@ The application needs to be a public client application (not a web app).
 
 Finally, from the **Overview** tab on the App Registration, record the
 ``Application (client) ID``. This is used for the ``--middleware-client-id`` option.
+
+============
+Contributing
+============
+
+Feel free to PR this repo, I don't really have contribution guidelines at this stage.
+
+Issues on M1 Silicon
+--------------------
+
+If you are trying to build/install this on M1 silicon, you'll run into an issue with the
+`cffi` dependency.
+
+It can be fixed by running something like the following, assuming you are using `brew`
+
+```
+pipenv shell
+python -m pip uninstall cffi
+LDFLAGS=-L$(brew --prefix libffi)/lib CFLAGS=-I$(brew --prefix libffi)/include pip install cffi --no-binary :all:
+```
